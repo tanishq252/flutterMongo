@@ -3,6 +3,7 @@ import 'package:flutter_mongo/updateUser.dart';
 // import 'package:mongo_dart/mongo_dart.dart';
 
 import 'addUser.dart';
+import 'contactComponent.dart';
 import 'database.dart';
 import 'models/user.dart';
 
@@ -29,22 +30,26 @@ class _HomePageState extends State<HomePage> {
     w = s.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Read Data"),
+        title: Text("User Management System"),
       ),
       body: ListView(
+
         children: <Widget>[
           Container(
             height: h / 30,
           ),
           IconButton(
               onPressed: () async {
-                Navigator.push(context,
+                Navigator.pushReplacement(context,
                     MaterialPageRoute(builder: (context) => AddUser()));
               },
               icon: Icon(
                 Icons.person_add_alt_sharp,
                 size: h / 20,
               )),
+          Container(
+            height: h / 50,
+          ),
           FutureBuilder(
               future: MongoDatabase.getDocuments(),
               builder: (buildContext, AsyncSnapshot snapshot) {
@@ -60,9 +65,9 @@ class _HomePageState extends State<HomePage> {
                 } else {
                   return Expanded(
                     child: SizedBox(
-                        height: h/1.5,
+                        height: h / 1.3,
                         child: ListView.builder(
-                            itemCount: 9,
+                            itemCount: sm.length,
                             itemBuilder: (context, index) {
                               return UserCard(user: sm[index]);
                             })),
@@ -70,7 +75,7 @@ class _HomePageState extends State<HomePage> {
                 }
               }),
           // ////////////////////////////////////////////////////////////////////////////////////////////////
-
+          // second method for reading data from mongo db
           // FutureBuilder(
           //     future: MongoDatabase.getDocuments(),
           //     builder: (context, snapshot) {
@@ -93,51 +98,3 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class DocumentSnapshot {}
-
-class UserCard extends StatelessWidget {
-  const UserCard({required this.user});
-  final Map<String, dynamic> user;
-  // final Function onTapEdit, onTapDelete;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 2.0,
-      color: Colors.white,
-      child: ListTile(
-        leading: Text(
-          '${user["age"]}',
-          style: Theme.of(context).textTheme.headline6,
-        ),
-        title: Text(user["name"]),
-        subtitle: Text('${user["phone"]}'),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            GestureDetector(
-              child: Icon(Icons.edit),
-              // onTap: (){
-              //   {
-              //   Navigator.push(context,
-              //       MaterialPageRoute(builder: (context) => UpdateUser(id:user["id"])));
-              // }
-              // },
-              onTap: () async {
-                await MongoDatabase.updateUser(user["_id"]);
-              },
-            ),
-            GestureDetector(
-              child: Icon(Icons.delete),
-              onTap: () async {
-                await MongoDatabase.deleteUser(user["_id"]);
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-}

@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_mongo/database.dart';
+import 'package:flutter_mongo/homePage.dart';
 import 'package:flutter_mongo/models/user.dart';
 import 'package:mongo_dart/mongo_dart.dart' as M;
 // import 'package:mongo_dart/database.dart';
 
 class UpdateUser extends StatefulWidget {
   final M.ObjectId id;
+  // final User u;
   const UpdateUser({Key? key, required this.id}) : super(key: key);
 
   @override
@@ -13,19 +15,26 @@ class UpdateUser extends StatefulWidget {
 }
 
 class _UpdateUserState extends State<UpdateUser> {
-  late TextEditingController _name;
-  late TextEditingController _phone;
-  late TextEditingController _age;
+  late TextEditingController _name = TextEditingController(text: "");
+  late TextEditingController _phone = TextEditingController(text: "");
+  late TextEditingController _age = TextEditingController(text: "");
   var h, w;
+  late Map<String, dynamic> use;
   late User u;
 
   @override
   void initState() {
-    // TODO: implement initState
-    _name = TextEditingController(text: "");
-    _age = TextEditingController(text: "");
-    _phone = TextEditingController(text: "");
+    print(widget.id);
+    initializeUser();
+  }
 
+  void initializeUser() async {
+    use = await MongoDatabase.currentuser(widget.id);
+    setState(() {
+      _name = TextEditingController(text: use["name"]);
+      _age = TextEditingController(text: use["age"].toString());
+      _phone = TextEditingController(text: use["phone"].toString());
+    });
   }
 
   @override
@@ -62,11 +71,12 @@ class _UpdateUserState extends State<UpdateUser> {
                   ),
                 ),
                 Container(
-                  height: h / 100,
+                  height: h / 50,
                 ),
                 TextField(
                   autofocus: true,
                   controller: _age,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixText: 'Age : ',
                     labelText: 'Age : ',
@@ -77,11 +87,12 @@ class _UpdateUserState extends State<UpdateUser> {
                   ),
                 ),
                 Container(
-                  height: h / 100,
+                  height: h / 50,
                 ),
                 TextField(
                   controller: _phone,
                   autofocus: true,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixText: 'Phone : ',
                     labelText: 'Phone : ',
@@ -94,46 +105,52 @@ class _UpdateUserState extends State<UpdateUser> {
             ),
           ),
           Container(
-            height: h / 3,
+            height: h / 30,
           ),
           GestureDetector(
             child: Container(
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(10)),
               margin: EdgeInsets.fromLTRB(w / 3, 0, w / 3, h / 3),
-              color: Colors.blue,
               width: w / 3,
               height: h / 20,
               child: Center(child: Text("Update User")),
             ),
             onTap: () async {
-              // try {
-              await MongoDatabase.updateUser(widget.id);
-              // } catch (e) {
-              //   await showDialog(
-              //       context: context,
-              //       builder: (BuildContext context) => AlertDialog(
-              //             backgroundColor: Colors.white,
-              //             title: const Text(
-              //               'User not njfvnjfnfvk updated',
-              //               textAlign: TextAlign.center,
-              //               style: TextStyle(color: Colors.black),
-              //             ),
-              //             actions: <Widget>[
-              //               TextButton(
-              //                 onPressed: () => Navigator.pop(context, 'OK'),
-              //                 child:
-              //                     const Text('OK', textAlign: TextAlign.center),
-              //               ),
-              //             ],
-              //           ));
+              setState(() {
+                u = User(
+                    id: widget.id,
+                    name: _name.text,
+                    age: int.parse(_age.text),
+                    phone: int.parse(_phone.text));
+              });
+
+              await MongoDatabase.update(u);
+              await showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: const Text(
+                          'User updated!!!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage())),
+                            child:
+                                const Text('OK', textAlign: TextAlign.center),
+                          ),
+                        ],
+                      ));
               // }
             },
           )
         ],
       ),
     );
-  }
-
-  trial() {
-    print("ghgh");
   }
 }

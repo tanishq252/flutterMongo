@@ -14,7 +14,6 @@ class MongoDatabase {
     await db.open();
     // fetch the collection we want
     collection = db.collection("User");
-    coll = db.collection("User");
   }
 
   // function to insert the data
@@ -28,7 +27,6 @@ class MongoDatabase {
   static Future<List<Map<String, dynamic>>?> getDocuments() async {
     try {
       final users = await collection.find().toList();
-      // print(users);
       return users;
     } catch (e) {
       print(e);
@@ -66,13 +64,7 @@ class MongoDatabase {
     await collection.remove(where.id(id));
   }
 
-  static updateUser(ObjectId id) async {
-    // var currentUser = await collection.findOne({"_id": id as ObjectId});
-    final newU = User(
-        id: id,
-        name: "updated",
-        age: 69,
-        phone: 6969);
-    await MongoDatabase.update(newU);
+  static currentuser(ObjectId id) {
+    return collection.findOne({"_id": id});
   }
 }

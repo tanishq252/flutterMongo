@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mongo/database.dart';
 import 'package:flutter_mongo/models/user.dart';
 import 'package:mongo_dart/mongo_dart.dart' as M;
+
+import 'homePage.dart';
 // import 'package:mongo_dart/database.dart';
 
 class AddUser extends StatefulWidget {
   const AddUser({Key? key}) : super(key: key);
-
   @override
   State<AddUser> createState() => _AddUserState();
 }
@@ -59,11 +60,12 @@ class _AddUserState extends State<AddUser> {
                   ),
                 ),
                 Container(
-                  height: h / 100,
+                  height: h / 50,
                 ),
                 TextField(
                   autofocus: true,
                   controller: _age,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixText: 'Age : ',
                     labelText: 'Age : ',
@@ -74,11 +76,12 @@ class _AddUserState extends State<AddUser> {
                   ),
                 ),
                 Container(
-                  height: h / 100,
+                  height: h / 50,
                 ),
                 TextField(
                   controller: _phone,
                   autofocus: true,
+                  keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     prefixText: 'Phone : ',
                     labelText: 'Phone : ',
@@ -91,33 +94,38 @@ class _AddUserState extends State<AddUser> {
             ),
           ),
           Container(
-            height: h / 3,
+            height: h / 10,
           ),
           GestureDetector(
             child: Container(
               margin: EdgeInsets.fromLTRB(w / 3, 0, w / 3, h / 3),
-              color: Colors.blue,
+              decoration: BoxDecoration(
+                  color: Colors.blue, borderRadius: BorderRadius.circular(10)),
               width: w / 3,
               height: h / 20,
               child: Center(child: Text("Add User")),
             ),
             onTap: () {
-              createUser().then((value)=>showDialog(
-          context: context,
-          builder: (BuildContext context) => AlertDialog(
-                backgroundColor: Colors.white,
-                title: const Text(
-                  'User added',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.black),
-                ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'OK'),
-                    child: const Text('OK', textAlign: TextAlign.center),
-                  ),
-                ],
-              )));
+              createUser().then((value) => showDialog(
+                  context: context,
+                  builder: (BuildContext context) => AlertDialog(
+                        backgroundColor: Colors.white,
+                        title: const Text(
+                          'User added successfully!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            onPressed: () => Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => HomePage())),
+                            child:
+                                const Text('OK', textAlign: TextAlign.center),
+                          ),
+                        ],
+                      )));
             },
           )
         ],
@@ -132,18 +140,5 @@ class _AddUserState extends State<AddUser> {
         age: int.parse(_age.text),
         phone: int.parse(_phone.text));
     await MongoDatabase.insert(user);
-  }
-
-  updateUser(User user) async {
-    final newU = User(
-        id: user.id,
-        name: _name.text,
-        age: int.parse(_age.text),
-        phone: int.parse(_phone.text));
-    await MongoDatabase.update(user);
-  }
-
-  trial() {
-    print("ghgh");
   }
 }
